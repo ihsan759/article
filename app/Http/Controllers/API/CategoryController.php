@@ -17,7 +17,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::query()->latest()->get(['id', 'name', 'created_at', 'updated_at']);
+        $categories = Category::query()->withCount("articles")->latest()->get(['id', 'name', 'created_at', 'updated_at']);
 
         return response()->json([
             "status" => true,
@@ -73,7 +73,7 @@ class CategoryController extends Controller
      */
     public function show($id)
     {
-        $category = Category::query()->where("id", $id)->first();
+        $category = Category::query()->withCount("articles")->where("id", $id)->first();
 
         if ($category == null) {
             return response()->json([

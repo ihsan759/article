@@ -13,15 +13,6 @@ class Category extends Model
 
     public function articles()
     {
-        return $this->belongsToMany(Article::class, 'article_category');
-    }
-
-    public static function boot()
-    {
-        parent::boot();
-
-        static::deleting(function ($category) {
-            $category->articles()->sync([]);
-        });
+        return $this->hasMany(Article::class, 'category_id');
     }
 }

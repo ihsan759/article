@@ -13,20 +13,11 @@ class Article extends Model
 
     public function categories()
     {
-        return $this->belongsToMany(Category::class, 'article_category');
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
     public function media()
     {
         return $this->hasMany(Media::class, 'article_id');
-    }
-
-    public static function boot()
-    {
-        parent::boot();
-
-        static::deleting(function ($article) {
-            $article->categories()->sync([]);
-        });
     }
 }

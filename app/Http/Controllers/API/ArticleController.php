@@ -49,8 +49,7 @@ class ArticleController extends Controller
             'media' => 'required|array',
             'media.*' => 'required|image|mimes:jpeg,png,jpg',
             "content" => "required",
-            "category" => "required|array",
-            "category.*" => "required|exists:categories,id",
+            "category" => "required|exists:categories,id",
             "banner" => 'required|image|mimes:jpeg,png,jpg'
         ], $messages = [
             "title.required" => "Wajib mengisi title artikel",
@@ -63,8 +62,7 @@ class ArticleController extends Controller
             "media.mimes" => "Hanya menerima extensi jpeg, png, jpg",
             "media.*.mimes" => "Hanya menerima extensi jpeg, png, jpg",
             "category.required" => "Wajib ada kategori",
-            "category.array" => "Kategori harus dalam bentuk array",
-            "category.*.exists" => "Kategori tidak tersedia",
+            "category.exists" => "Kategori tidak tersedia",
             "banner.required" => "Wajib mengupload gambar",
             "banner.image" => "Wajib mengupload file dalam bentuk gambar",
             "banner.mimes" => "Hanya menerima extensi jpeg, png, jpg",
@@ -84,14 +82,9 @@ class ArticleController extends Controller
 
 
         $images = [];
-        $categories = [];
-
-        foreach ($request->category as $key => $category) {
-            $categories[] = $category;
-        }
 
         try {
-            DB::transaction(function () use ($article, $request, $categories, $images) {
+            DB::transaction(function () use ($article, $request, $images) {
 
                 $banner = $request->getSchemeAndHttpHost() . '/storage/' . $request->file('banner')->store('banner', 'public');
 
@@ -101,12 +94,11 @@ class ArticleController extends Controller
                 $article->fill([
                     "title" => $request->title,
                     "content" => $request->content,
-                    "banner" => $banner
+                    "banner" => $banner,
+                    "category_id" => $request->category
                 ]);
 
                 $article->save();
-
-                $article->categories()->attach($categories);
 
                 foreach ($images as $key => $image) {
                     Media::query()->create([
@@ -185,8 +177,7 @@ class ArticleController extends Controller
             'media' => 'array',
             'media.*' => 'image|mimes:jpeg,png,jpg',
             "content" => "required",
-            "category" => "required|array",
-            "category.*" => "required|exists:categories,id",
+            "category" => "required|exists:categories,id",
             "banner" => 'image|mimes:jpeg,png,jpg'
         ], $messages = [
             "title.required" => "Wajib mengisi title artikel",
@@ -196,8 +187,7 @@ class ArticleController extends Controller
             "media.*.image" => "Wajib mengupload file dalam bentuk gambar",
             "media.*.mimes" => "Hanya menerima extensi jpeg, png, jpg",
             "category.required" => "Wajib ada kategori",
-            "category.array" => "Kategori harus dalam bentuk array",
-            "category.*.exists" => "Kategori tidak tersedia",
+            "category.exists" => "Kategori tidak tersedia",
             "banner.image" => "Wajib mengupload file dalam bentuk gambar",
             "banner.mimes" => "Hanya menerima extensi jpeg, png, jpg",
         ]);
@@ -210,14 +200,6 @@ class ArticleController extends Controller
             ]);
         }
 
-        $categories = [];
-
-        foreach ($request->category as $key => $category) {
-            $categories[] = $category;
-        }
-
-        $article->categories()->sync($categories);
-
         $bannerImage = $request->file('banner');
         if ($bannerImage != null) {
 
@@ -229,12 +211,14 @@ class ArticleController extends Controller
             $article->fill([
                 "title" => $request->title,
                 "content" => $request->content,
-                "banner" => $banner
+                "banner" => $banner,
+                "category_id" => $request->category
             ]);
         } else {
             $article->fill([
                 "title" => $request->title,
-                "content" => $request->content
+                "content" => $request->content,
+                "category_id" => $request->category
             ]);
         }
 
@@ -282,6 +266,14 @@ class ArticleController extends Controller
         $article = Article::query()->with(["categories" => function ($query) {
             $query->select("id");
         }, "media"])->find($id);
+
+        if ($article == null) {
+            return response()->json([
+                "status" => false,
+                "message" => "Data tidak ditemukan",
+                "data" => ""
+            ]);
+        }
 
         try {
             DB::transaction(function () use ($article, $request) {
