@@ -35,13 +35,15 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            "name" => "required|max:50|unique:categories,name",
-            "description" => "required"
+            "name" => "required|max:50|unique:categories,name|string",
+            "description" => "required|string"
         ], $messages = [
             "name.required" => "Wajib mengisi nama kategori",
+            "name.string" => "Wajib mengisi dalam bentuk string",
             "name.max" => "Maksimal 50 karakter",
             "name.unique" => "Nama kategori sudah ada",
-            "description.required" => "Wajib mengisi deskripsi kategori"
+            "description.required" => "Wajib mengisi deskripsi kategori",
+            "description.string" => "Wajib mengisi deskripsi kategori dalam bentuk string"
         ]);
 
         if ($validator->fails()) {
@@ -113,14 +115,17 @@ class CategoryController extends Controller
             "name" => [
                 'required',
                 'max:50',
+                'string',
                 Rule::unique('categories', 'name')->ignore($category)
             ],
-            "description" => "required"
+            "description" => "required|string"
         ], $messages = [
             "name.required" => "Wajib mengisi nama kategori",
             "name.max" => "Maksimal 50 karakter",
+            "name.string" => "Wajib mengisi dalam bentuk string",
             "name.unique" => "Nama kategori sudah ada",
-            "description.required" => "Wajib mengisi deskripsi kategori"
+            "description.required" => "Wajib mengisi deskripsi kategori",
+            "description.string" => "Wajib mengisi deskripsi kategori dalam bentuk string"
         ]);
 
         if ($validator->fails()) {

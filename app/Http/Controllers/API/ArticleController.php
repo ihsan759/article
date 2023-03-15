@@ -45,16 +45,18 @@ class ArticleController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            "title" => "required|max:50",
+            "title" => "required|max:50|string",
             'media' => 'required|array',
             'media.*' => 'required|image|mimes:jpeg,png,jpg',
-            "content" => "required",
-            "category" => "required|exists:categories,id",
+            "content" => "required|string",
+            "category" => "required|exists:categories,id|integer|numeric",
             "banner" => 'required|image|mimes:jpeg,png,jpg'
         ], $messages = [
             "title.required" => "Wajib mengisi title artikel",
+            "title.string" => "title hanya menerima inputan string",
             "title.max" => "Maksimal 50 karakter",
             "content.required" => "Wajib mengisi konten artikel",
+            "content.string" => "Konten hanya menerima inputan string",
             "media.required" => "Wajib mengupload gambar",
             "media.array" => "Wajib mengupload gambar dalam bentuk array",
             "media.image" => "Wajib mengupload file dalam bentuk gambar",
@@ -63,6 +65,8 @@ class ArticleController extends Controller
             "media.*.mimes" => "Hanya menerima extensi jpeg, png, jpg",
             "category.required" => "Wajib ada kategori",
             "category.exists" => "Kategori tidak tersedia",
+            "category.integer" => "Hanya menerima inputan bilangan bulat",
+            "category.numeric" => "Hanya menerima inputan numeric",
             "banner.required" => "Wajib mengupload gambar",
             "banner.image" => "Wajib mengupload file dalam bentuk gambar",
             "banner.mimes" => "Hanya menerima extensi jpeg, png, jpg",
@@ -173,21 +177,24 @@ class ArticleController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            "title" => "required|max:50",
+            "title" => "required|max:50|string",
             'media' => 'array',
             'media.*' => 'image|mimes:jpeg,png,jpg',
-            "content" => "required",
-            "category" => "required|exists:categories,id",
+            "content" => "required|string",
+            "category" => "required|exists:categories,id|integer",
             "banner" => 'image|mimes:jpeg,png,jpg'
         ], $messages = [
             "title.required" => "Wajib mengisi title artikel",
+            "title.string" => "title hanya menerima inputan string",
             "title.max" => "Maksimal 50 karakter",
             "content.required" => "Wajib mengisi konten artikel",
+            "content.string" => "Konten hanya menerima inputan string",
             "media.array" => "Wajib mengupload file gambar dalam bentuk array",
             "media.*.image" => "Wajib mengupload file dalam bentuk gambar",
             "media.*.mimes" => "Hanya menerima extensi jpeg, png, jpg",
             "category.required" => "Wajib ada kategori",
             "category.exists" => "Kategori tidak tersedia",
+            "category.integer" => "Hanya menerima inputan integer",
             "banner.image" => "Wajib mengupload file dalam bentuk gambar",
             "banner.mimes" => "Hanya menerima extensi jpeg, png, jpg",
         ]);
